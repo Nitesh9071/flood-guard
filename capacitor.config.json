@@ -1,0 +1,11 @@
+{
+	"appId": "com.floodguard.ai",
+	"appName": "FloodGuard AI",
+	"webDir": "mobile/www",
+	"server": {
+		"androidScheme": "https"
+	},
+	"android": {
+		"allowMixedContent": true
+	}
+}

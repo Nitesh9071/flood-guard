@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0e2039">
+<title>FloodGuard AI | Urban Flood Monitor</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script type="module" crossorigin src="./assets/index-D0mZ3Qjk.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Dsh8xCRB.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-icon">≈</div><div><strong>FloodGuard <span>AI</span></strong><small>URBAN FLOOD MONITOR</small></div></div>
+    <div class="nav-label">WORKSPACE</div>
+    <button class="nav active" data-view="overview">▦ <span>Overview</span></button>
+    <button class="nav" data-view="map-section">⌖ <span>Flood map</span></button>
+    <button class="nav" data-view="report-section">＋ <span>Report flooding</span></button>
+    <button class="nav" data-view="incidents-section">☷ <span>Incidents</span></button>
+    <button class="nav" data-view="weather-section">☁ <span>Weather & AI</span></button>
+    <button class="nav" data-view="navigation-section">⇄ <span>Route compare</span></button>
+    <div class="sidebar-bottom"><div class="status-dot"></div><div><b>Prototype mode</b><small>No sample data included</small></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow">BENGALURU · FLOOD SITUATION</div><h1>Flood intelligence dashboard</h1><p>See reported waterlogging, understand risk, and share local updates.</p></div><div class="top-actions"><div class="top-pill"><span class="live-dot"></span> <span id="connectionState">Connecting…</span></div><button class="secondary" id="serverSettingsButton" type="button">Server settings</button></div></header>
+    <section class="stats" id="overview">
+      <article class="stat"><div class="stat-top"><span>Reports received</span><span class="stat-icon blue">⌖</span></div><strong id="totalReports">0</strong><small>Community-submitted incidents</small></article>
+      <article class="stat"><div class="stat-top"><span>High severity</span><span class="stat-icon red">!</span></div><strong id="highReports">0</strong><small>Requires review</small></article>
+      <article class="stat"><div class="stat-top"><span>Under review</span><span class="stat-icon amber">◷</span></div><strong id="reviewReports">0</strong><small>Incident status</small></article>
+      <article class="stat"><div class="stat-top"><span>Weather data</span><span class="stat-icon green">☁</span></div><strong class="text-stat" id="weatherStat">Loading…</strong><small id="weatherStatDetail">Connecting to live weather</small></article>
+    </section>
+    <section class="content-grid">
+      <article class="panel map-panel" id="map-section">
+        <div class="panel-heading"><div><h2>Flood incident map</h2><p>Saved community reports with coordinates — not independently verified</p></div><span class="badge">MAP VIEW</span></div>
+        <div id="map"></div>
+        <div class="map-legend"><span><i class="legend-dot high"></i> High</span><span><i class="legend-dot medium"></i> Moderate</span><span><i class="legend-dot low"></i> Low</span></div>
+      </article>
+      <article class="panel report-panel" id="report-section">
+        <div class="panel-heading"><div><h2>Report waterlogging</h2><p>Share an observed issue</p></div><span class="plus">＋</span></div>
+        <form id="reportForm">
+          <div class="place-search"><label for="location">Search a Bengaluru place<input id="location" type="search" required maxlength="180" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="reportPlaceSuggestions" placeholder="Start typing a road, area, or landmark"></label><div id="reportPlaceSuggestions" class="place-suggestions" role="listbox" hidden></div><small class="place-attribution">Place suggestions by OpenStreetMap contributors</small></div>
+          <input id="latitude" type="hidden"><input id="longitude" type="hidden">
+          <div class="location-picker"><div class="location-picker-actions"><button class="secondary" id="pickOnMap" type="button">Pin on map</button><button class="secondary" id="useMyLocation" type="button">Use my location</button></div><div id="locationHint" class="location-hint" role="status">Choose a suggested place, use your location, or drop a pin.</div></div>
+          <label>Observed severity<select id="severity"><option value="moderate">Moderate — waterlogging</option><option value="high">High — road may be impassable</option><option value="low">Low — minor accumulation</option></select></label>
+          <label>Description<textarea id="description" required rows="3" placeholder="What did you observe?"></textarea></label>
+          <button class="primary" type="submit">Submit report <span>→</span></button>
+          <div class="form-note">Reports save to the shared local database. Community reports are unverified; do not use for emergency decisions.</div>
+          <div id="formMessage" role="status"></div>
+        </form>
+      </article>
+    </section>
+    <section class="panel weather-ai-panel" id="weather-section">
+      <div class="panel-heading"><div><h2>Live weather & AI flood signal</h2><p>Weather forecast context plus an experimental district-level ML model.</p></div><span class="badge">WEATHER + ML BETA</span></div>
+      <form id="weatherLocationForm" class="weather-location-form">
+        <div class="weather-place-controls"><div class="place-search"><label for="weatherPlace">Search a Bengaluru place<input id="weatherPlace" type="search" maxlength="180" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="weatherPlaceSuggestions" placeholder="Type an area or landmark" value="Bengaluru city centre"></label><div id="weatherPlaceSuggestions" class="place-suggestions" role="listbox" hidden></div><small class="place-attribution">Place suggestions by OpenStreetMap contributors</small></div><div class="location-picker-actions"><button class="secondary" id="weatherUseLocation" type="button">Use my location</button><button class="secondary" id="weatherPickOnMap" type="button">Pin on map</button></div><div id="weatherLocationHint" class="location-hint" role="status">Bengaluru city centre · Choose a place, use your location, or pin the map.</div></div>
+        <input id="weatherLat" type="hidden" value="12.9716"><input id="weatherLon" type="hidden" value="77.5946">
+        <button class="primary" id="refreshWeather" type="submit">Refresh weather & prediction <span>↻</span></button>
+      </form>
+      <div class="weather-ai-grid">
+        <article class="weather-card"><h3>Current conditions</h3><div id="weatherSummary" class="weather-result" role="status">Loading live weather from Open-Meteo…</div></article>
+        <article class="weather-card"><h3>AI flood-event signal</h3><div id="predictionResult" class="weather-result" role="status">Checking whether a trained model is available…</div></article>
+      </div>
+      <div class="disclaimer">Important: weather is not the same as flooding. The ML model uses coarse district-level historical event labels, if trained; it is not a street-level waterlogging predictor or emergency warning. Follow official weather alerts and road closures.</div>
+    </section>
+    <section class="panel navigation-panel" id="navigation-section">
+      <div class="panel-heading"><div><h2>Flood-aware route comparison</h2><p>Compare driving routes against recent, geolocated community reports.</p></div><span class="badge">ROUTE BETA</span></div>
+      <div class="route-grid">
+        <form id="routeForm" class="route-form">
+          <div class="route-form-note">Type a Bengaluru road, area, or landmark and choose a suggestion.</div>
+          <div class="place-search"><label for="originPlace">Starting point<input id="originPlace" type="search" maxlength="180" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="originPlaceSuggestions" placeholder="Search origin"></label><div id="originPlaceSuggestions" class="place-suggestions" role="listbox" hidden></div></div>
+          <input id="originLat" type="hidden"><input id="originLon" type="hidden">
+          <div class="route-actions"><button class="secondary" id="pickOrigin" type="button">Pick origin on map</button><button class="secondary" id="useRouteLocation" type="button">Use my location</button></div>
+          <div class="place-search"><label for="destinationPlace">Destination<input id="destinationPlace" type="search" maxlength="180" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="destinationPlaceSuggestions" placeholder="Search destination"></label><div id="destinationPlaceSuggestions" class="place-suggestions" role="listbox" hidden></div></div>
+          <input id="destinationLat" type="hidden"><input id="destinationLon" type="hidden">
+          <button class="secondary" id="pickDestination" type="button">Pick destination on map</button>
+          <button class="primary" type="submit" id="compareRoutes">Compare routes <span>→</span></button>
+          <div id="routeMessage" role="status" class="route-message">Routing requires an internet connection. Hazard scoring uses reports from this app only.</div>
+        </form>
+        <div class="route-results" id="routeResults"><div class="route-empty"><strong>No route comparison yet</strong><p>Choose an origin and destination, then select Compare routes.</p></div></div>
+      </div>
+      <div class="disclaimer">Safety note: this is an experimental route comparison, not emergency navigation. Reports may be inaccurate or missing; no known reports do not mean a road is safe. Follow official closures and emergency instructions.</div>
+    </section>
+    <section class="panel incidents-panel" id="incidents-section">
+      <div class="panel-heading"><div><h2>Recent incidents</h2><p>Reports submitted to the shared local database</p></div><span class="badge">LATEST REPORTS</span></div>
+      <div class="table-wrap"><table><thead><tr><th>LOCATION</th><th>SEVERITY</th><th>RISK SCORE</th><th>STATUS</th><th>REPORTED</th><th>ACTION</th></tr></thead><tbody id="incidentRows"></tbody></table></div>
+      <div class="disclaimer">⚠ Prototype only: reports are unverified; the score is an illustrative heuristic and is not a validated flood forecast. Do not use this demo for emergency decisions.</div>
+    </section>
+    <footer>FloodGuard AI <span>·</span> Hackathon MVP <span>·</span> Bengaluru demonstration</footer>
+  </main>
+</div>
+<dialog id="serverDialog" class="server-dialog">
+  <form id="serverForm">
+    <h2>Connect FloodGuard server</h2>
+    <p>Connect to your FloodGuard server. For a free home setup, run it on a PC on the same Wi-Fi and enter its private address (for example, http://192.168.1.20:8000). HTTPS is required for public servers.</p>
+    <label>Server URL<input id="serverUrl" type="url" inputmode="url" placeholder="http://192.168.1.20:8000" required></label>
+    <div id="serverMessage" role="status" class="server-message"></div>
+    <div class="server-dialog-actions"><button class="secondary" id="serverCancel" type="button">Cancel</button><button class="primary" type="submit">Check and save</button></div>
+  </form>
+</dialog>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body></html>
+
+
+
